@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Damian Mojica — Recruitment Tracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f4f6f9; color: #222; }
+
+  .header {
+    background: linear-gradient(135deg, #1a2a4a 0%, #2d4a7a 100%);
+    color: white; padding: 28px 32px; display: flex;
+    align-items: center; justify-content: space-between;
+  }
+  .header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: .5px; }
+  .header p  { font-size: .9rem; opacity: .8; margin-top: 4px; }
+  .header-right { text-align: right; font-size: .85rem; opacity: .75; }
+
+  /* TABS */
+  .tab-bar {
+    display: flex; background: #162240; padding: 0 32px;
+  }
+  .tab-btn {
+    padding: 14px 28px; color: rgba(255,255,255,.6); font-size: .9rem;
+    font-weight: 600; cursor: pointer; border: none; background: none;
+    border-bottom: 3px solid transparent; transition: all .2s; letter-spacing: .3px;
+  }
+  .tab-btn:hover { color: rgba(255,255,255,.9); }
+  .tab-btn.active { color: #fff; border-bottom-color: #e05b2c; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* STAT CARDS */
+  .stats { display: flex; gap: 16px; padding: 24px 32px; flex-wrap: wrap; }
+  .card {
+    background: white; border-radius: 10px; padding: 18px 24px;
+    flex: 1; min-width: 140px; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    border-top: 4px solid #2d4a7a;
+  }
+  .card.offer   { border-top-color: #e05b2c; }
+  .card.active  { border-top-color: #2e7d52; }
+  .card.text    { border-top-color: #5b7fa6; }
+  .card.call    { border-top-color: #7b5ea7; }
+  .card.nil     { border-top-color: #d4a017; }
+  .card-num   { font-size: 2rem; font-weight: 700; color: #1a2a4a; line-height: 1; }
+  .card-label { font-size: .78rem; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+
+  /* CONTROLS */
+  .controls {
+    padding: 0 32px 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  }
+  .controls input, .controls select {
+    padding: 8px 14px; border: 1px solid #ccc; border-radius: 6px;
+    font-size: .88rem; background: white;
+  }
+  .controls input { width: 260px; }
+  .controls label { font-size: .82rem; color: #555; margin-right: 4px; }
+
+  /* TABLE */
+  .table-wrap { padding: 0 32px 40px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: white;
+    border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  thead { background: #1a2a4a; color: white; }
+  thead th {
+    padding: 12px 14px; text-align: left; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .5px; white-space: nowrap;
+    cursor: pointer; user-select: none;
+  }
+  thead th:hover { background: #2d4a7a; }
+  thead th.no-sort { cursor: default; }
+  thead th.no-sort:hover { background: #1a2a4a; }
+  tbody tr { border-bottom: 1px solid #eee; transition: background .15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f0f4ff; }
+  td { padding: 11px 14px; font-size: .85rem; vertical-align: top; }
+  td.notes { max-width: 360px; color: #444; font-size: .8rem; line-height: 1.5; }
+  td.summary { max-width: 420px; color: #444; font-size: .8rem; line-height: 1.5; }
+
+  /* BADGES */
+  .badge {
+    display: inline-block; padding: 3px 9px; border-radius: 20px;
+    font-size: .72rem; font-weight: 600; white-space: nowrap;
+  }
+  .badge-offer    { background: #fde8df; color: #c0401a; }
+  .badge-active   { background: #dff3e9; color: #1e6e40; }
+  .badge-text     { background: #e3ecf7; color: #2c5282; }
+  .badge-call     { background: #ede8f5; color: #5b3d9e; }
+  .badge-meet     { background: #fef3c7; color: #92400e; }
+  .badge-ft       { background: #d1fae5; color: #065f46; }
+  .badge-d1       { background: #fff3cd; color: #7a5500; }
+  .badge-d2       { background: #e8f4e8; color: #2d5a1b; }
+  .badge-consider { background: #fef9c3; color: #854d0e; }
+  .badge-passed   { background: #f3f4f6; color: #6b7280; }
+  .badge-engaged  { background: #dbeafe; color: #1e40af; }
+
+  .phone { color: #2d4a7a; font-weight: 500; white-space: nowrap; }
+  .no-results { padding: 40px; text-align: center; color: #888; font-size: .95rem; }
+
+  /* NIL AGENCY CARDS */
+  .agency-grid {
+    display: flex; gap: 20px; padding: 24px 32px; flex-wrap: wrap;
+  }
+  .agency-card {
+    background: white; border-radius: 12px; padding: 22px 26px;
+    flex: 1; min-width: 280px; max-width: 420px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.09);
+    border-left: 5px solid #d4a017;
+  }
+  .agency-card.passed { border-left-color: #9ca3af; }
+  .agency-name { font-size: 1.1rem; font-weight: 700; color: #1a2a4a; }
+  .agency-meta { font-size: .78rem; color: #666; margin-top: 5px; line-height: 1.6; }
+  .agency-meta a { color: #2d4a7a; }
+  .agency-status { margin-top: 10px; }
+  .agency-contacts-label {
+    font-size: .72rem; text-transform: uppercase; letter-spacing: .5px;
+    color: #888; margin-top: 14px; margin-bottom: 6px;
+  }
+  .contact-chip {
+    display: inline-block; background: #f0f4ff; border: 1px solid #c7d4f0;
+    border-radius: 20px; padding: 3px 10px; font-size: .75rem;
+    color: #2d4a7a; margin: 2px 2px 2px 0;
+  }
+
+  .section-label {
+    padding: 8px 32px 12px; font-size: .8rem; text-transform: uppercase;
+    letter-spacing: .6px; color: #888; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Damian Mojica — Recruitment Tracker</h1>
+    <p>Class of 2028 &nbsp;|&nbsp; SF/PF &nbsp;|&nbsp; 6'8" &nbsp;|&nbsp; Yonkers, NY</p>
+  </div>
+  <div class="header-right">
+    Last updated: July 4, 2026<br>
+    Tracking 25 schools · 2 agencies
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('schools')">🏀 School Recruitment</button>
+  <button class="tab-btn" onclick="switchTab('nil')">💼 NIL Agents</button>
+</div>
+
+<!-- ======================== SCHOOLS TAB ======================== -->
+<div id="tab-schools" class="tab-panel active">
+
+<div class="stats">
+  <div class="card"><div class="card-num">29</div><div class="card-label">Total Contacts</div></div>
+  <div class="card"><div class="card-num">25</div><div class="card-label">Schools</div></div>
+  <div class="card offer"><div class="card-num">6</div><div class="card-label">Offers Received</div></div>
+  <div class="card active"><div class="card-num">22</div><div class="card-label">Active</div></div>
+  <div class="card call"><div class="card-num">17</div><div class="card-label">Phone Calls</div></div>
+  <div class="card text"><div class="card-num">9</div><div class="card-label">Texts</div></div>
+</div>
+
+<div class="controls">
+  <input type="text" id="s-search" placeholder="Search school, coach, conference…" oninput="filterSchools()">
+  <label>Status:</label>
+  <select id="s-status" onchange="filterSchools()">
+    <option value="">All</option>
+    <option value="Offer Received">Offers</option>
+    <option value="Active">Active</option>
+  </select>
+  <label>Contact:</label>
+  <select id="s-contact" onchange="filterSchools()">
+    <option value="">All</option>
+    <option value="Phone Call">Phone Call</option>
+    <option value="Text">Text</option>
+  </select>
+  <label>Conference:</label>
+  <select id="s-conf" onchange="filterSchools()">
+    <option value="">All</option>
+    <option value="ACC">ACC</option>
+    <option value="Big Ten">Big Ten</option>
+    <option value="Big 12">Big 12</option>
+    <option value="American Athletic">American Athletic</option>
+    <option value="Mountain West">Mountain West</option>
+    <option value="Conference USA">Conference USA</option>
+    <option value="MAC">MAC</option>
+    <option value="MAAC">MAAC</option>
+    <option value="CAA">CAA</option>
+    <option value="Sun Belt">Sun Belt</option>
+    <option value="Patriot League">Patriot League</option>
+    <option value="Summit League">Summit League</option>
+    <option value="ASUN">ASUN</option>
+    <option value="NEC">NEC</option>
+    <option value="MEAC">MEAC</option>
+    <option value="Southern Conference">Southern Conference</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th onclick="sortSchools(0)">#</th>
+        <th onclick="sortSchools(1)">Date</th>
+        <th onclick="sortSchools(2)">College</th>
+        <th onclick="sortSchools(3)">Div</th>
+        <th onclick="sortSchools(4)">Conference</th>
+        <th onclick="sortSchools(5)">Coach</th>
+        <th onclick="sortSchools(6)">Position</th>
+        <th onclick="sortSchools(7)">Phone</th>
+        <th onclick="sortSchools(8)">Contact</th>
+        <th onclick="sortSchools(9)">Status</th>
+        <th class="no-sort">Notes</th>
+      </tr>
+    </thead>
+    <tbody id="s-tbody"></tbody>
+  </table>
+  <div id="s-nores" class="no-results" style="display:none">No matching records found.</div>
+</div>
+</div>
+
+<!-- ======================== NIL TAB ======================== -->
+<div id="tab-nil" class="tab-panel">
+
+<div class="stats">
+  <div class="card nil"><div class="card-num">2</div><div class="card-label">Agencies Engaged</div></div>
+  <div class="card"><div class="card-num">5</div><div class="card-label">Contacts</div></div>
+  <div class="card call"><div class="card-num">3</div><div class="card-label">Calls / Meetings</div></div>
+  <div class="card text"><div class="card-num">1</div><div class="card-label">Group Texts</div></div>
+</div>
+
+<div class="section-label">Agencies</div>
+<div class="agency-grid">
+
+  <div class="agency-card">
+    <div class="agency-name">ProMondo Sports</div>
+    <div class="agency-meta">
+      <a href="https://promondosports.com/" target="_blank">promondosports.com</a> &nbsp;·&nbsp; Minnesota-based<br>
+      Agents in NC, NY, TX &nbsp;·&nbsp; ~5–6 years in operation<br>
+      Former NBA GMs on staff (Matt Bollero — Milwaukee Bucks championship)
+    </div>
+    <div class="agency-status"><span class="badge badge-engaged">🤝 Active / Evaluating</span></div>
+    <div class="agency-contacts-label">Key Contacts</div>
+    <span class="contact-chip">MJ Jean — Agent</span>
+    <span class="contact-chip">Sean Deniton — Agent (NC)</span>
+    <span class="contact-chip">Matt Bollero — CEO</span>
+    <span class="contact-chip">Nic Meister — Chief of Staff</span>
+  </div>
+
+  <div class="agency-card">
+    <div class="agency-name">Harrison Sports Management (HSM)</div>
+    <div class="agency-meta">
+      Lawyer &amp; Agent firm<br>
+      Contact: Michael Higgins (Lawyer &amp; Agent)
+    </div>
+    <div class="agency-status"><span class="badge badge-consider">📋 Initial Meeting Held</span></div>
+    <div class="agency-contacts-label">Key Contacts</div>
+    <span class="contact-chip">Michael Higgins — Lawyer &amp; Agent</span>
+  </div>
+
+</div>
+
+<div class="section-label" style="margin-top:8px">Interaction Log</div>
+<div class="controls">
+  <input type="text" id="n-search" placeholder="Search agency, person, topic…" oninput="filterNil()">
+  <label>Agency:</label>
+  <select id="n-agency" onchange="filterNil()">
+    <option value="">All</option>
+    <option value="ProMondo Sports">ProMondo Sports</option>
+    <option value="Harrison Sports Management">Harrison Sports Management</option>
+  </select>
+  <label>Type:</label>
+  <select id="n-type" onchange="filterNil()">
+    <option value="">All</option>
+    <option value="Phone Call">Phone Call</option>
+    <option value="In-Person">In-Person</option>
+    <option value="FaceTime">FaceTime</option>
+    <option value="Group Text">Group Text</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th onclick="sortNil(0)">#</th>
+        <th onclick="sortNil(1)">Date</th>
+        <th onclick="sortNil(2)">Agency</th>
+        <th onclick="sortNil(3)">Person</th>
+        <th onclick="sortNil(4)">Role</th>
+        <th onclick="sortNil(5)">Phone</th>
+        <th onclick="sortNil(6)">Type</th>
+        <th class="no-sort">Conversation Summary</th>
+      </tr>
+    </thead>
+    <tbody id="n-tbody"></tbody>
+  </table>
+  <div id="n-nores" class="no-results" style="display:none">No matching records found.</div>
+</div>
+
+</div>
+
+<script>
+/* ===================== SCHOOL DATA ===================== */
+const schoolData = [
+  ["6/15/2026","Syracuse","D1","ACC","Ben Lee","Assistant Coach","+1 (516) 417-2330","Text","Active",""],
+  ["6/15/2026","Hofstra","D1","CAA","","","","Phone Call","Active",""],
+  ["6/15/2026","Arkansas Little Rock","D1","Sun Belt","Christian Nunez","Assistant Coach","+1 (914) 705-1039","Phone Call","Offer Received",""],
+  ["6/15/2026","East Carolina","D1","American Athletic","Coach Poole","","+1 (512) 497-0815","Phone Call","Offer Received",""],
+  ["6/15/2026","Notre Dame","D1","ACC","Tre Whitted","Assistant Coach","+1 (910) 470-8610","Text","Active","Tre Whitted texted: 'Enjoyed watching you guys play yesterday. Interested in Damian Mojica, do you mind giving me his number?' Shared Damian's number with Notre Dame."],
+  ["6/15/2026","Towson","D1","CAA","Chris Conway","Assistant Coach","+1 (443) 834-3413","Text","Active",""],
+  ["6/15/2026","Boston University","D1","Patriot League","Joe Jones","Head Coach","+1 (781) 690-8614","Phone Call","Active","Head Coach"],
+  ["6/16/2026","Oral Roberts","D1","Summit League","","","","Phone Call","Offer Received",""],
+  ["6/15/2026","Kennesaw State","D1","ASUN","Willie Watson","Assistant Coach","+1 (205) 499-5363","Phone Call","Offer Received",""],
+  ["6/15/2026","Stanford","D1","ACC","Matt Elkin","Assistant Coach","+1 (617) 462-0664","Text","Active","Matt Elkin asked for Dad's contact and Damian's number. Also requested updated transcript."],
+  ["6/17/2026","Stanford","D1","ACC","Matt Elkin","Assistant Coach","+1 (617) 462-0664","Phone Call","Active","Follow-up phone call with Matt Elkin."],
+  ["6/17/2026","FDU","D1","NEC","","","","Text","Active",""],
+  ["6/16/2026","Buffalo","D1","MAC","Raman Sposato","Assistant Coach","+1 (213) 925-7465","","Active","Raman Sposato reached out. Shared Dad's and Damian's contact info."],
+  ["6/16/2026","Chattanooga","D1","Southern Conference","Coach Kiely","Assistant Coach","+1 (518) 428-8074","Text","Active","Also spoke with Chattanooga by phone."],
+  ["6/17/2026","Boston College","D1","ACC","Mat Johnson","Assistant Coach","+1 (609) 346-9371","Phone Call","Active",""],
+  ["6/17/2026","Virginia Tech","D1","ACC","J.D. Byers","Assistant Coach","+1 (410) 259-1747","Text","Active",""],
+  ["7/2/2026","Virginia Tech","D1","ACC","J.D. Byers","Assistant Coach","+1 (410) 259-1747","Phone Call","Offer Received","Phone conversation on 7/2/2026. Scholarship offer received."],
+  ["6/17/2026","Delaware","D1","CAA","Coach Corey","Assistant Coach","+1 (202) 528-0859","","Active",""],
+  ["","Norfolk State","D1","MEAC","Leonard Fairley","","+1 (301) 395-7884","","Active",""],
+  ["3/13/2026","Rice","D1","Conference USA","Jeff Martin","Assistant Coach","","Text","Active","Jeff Martin reached out via text. Got Damian's contact from Joey Kuhl. | Phone call with Dad 3/13/2026."],
+  ["","Iona","D1","MAAC","","","","Phone Call","Active","Not recruiting 2028 class yet. Will reconnect in fall; interested in campus visit."],
+  ["","New Mexico","D1","Mountain West","","","","Phone Call","Active","Phone tag — haven't connected yet."],
+  ["","Michigan State","D1","Big Ten","Doug Wojcik","","","Phone Call","Active","Doug Wojcik reached out. Evaluating through summer. Shared family contacts."],
+  ["","Chattanooga","D1","Southern Conference","Coach Kiely","Assistant Coach","+1 (518) 428-8074","Phone Call","Active","Follow-up phone call — spoke directly with Coach Kiely."],
+  ["","Notre Dame","D1","ACC","Tre Whitted","Assistant Coach","+1 (910) 470-8610","Phone Call","Active","Follow-up phone call with Notre Dame."],
+  ["7/1/2026","West Virginia","D1","Big 12","Phil Forte","Coach","+1 (972) 971-3558","Phone Call","Offer Received","Scholarship offered 7/1/2026. Phil Forte followed up on 7/2/2026."],
+  ["7/1/2026","Minnesota","D1","Big Ten","Lexus Williams","Coach","+1 (612) 200-7495","Phone Call","Active","Called on 7/1/2026."],
+  ["7/4/2026","Wake Forest","D1","ACC","Nick Friedman","Assistant Coach / OC","","Text","Active","Instagram DM (@coachnickfried): 'What's your number, killa? Want to call you.' Also serves as Haitian National Team Head Coach (@haiti_hoops)."],
+];
+
+/* ===================== NIL DATA ===================== */
+const nilData = [
+  ["4/24/2026","ProMondo Sports","Sean Deniton","Agent","984.335.4012","In-Person","Sean watched Damian play at EYBL in Atlanta, GA (4/24–4/26). Was impressed by his IQ, soft touch around the rim, and rebounding. Made initial connection with the family."],
+  ["5/1/2026","ProMondo Sports","Sean Deniton","Agent","984.335.4012","Phone Call","First formal conversation about representation. Key points: ProMondo has been operating 5–6 years with former NBA GMs (Matt Bollero was Director of Scouting in Milwaukee during championship). No cost for high schoolers — fees kick in at 10% only when NIL deals are negotiated in college (based on FIFA-style rules, below industry standard of 15–20%). Focus on finding best school fit first, then NIL. Has relationships with college coaches to provide honest recruiting intel. Offers player development via NBA skills trainers (including one based at NBAPA in NY). Runs 'College Week' (1st week of June/May) — fly NIL clients to Minnesota for NBA-level workouts, nutrition, education. Currently represents 15–20 HS athletes. Damian's development notes: improve communication and activity on defense."],
+  ["6/20/2026","ProMondo Sports","MJ Jean (Mardochee)","Agent","","In-Person","In-person meeting between Kern and MJ Jean. MJ also introduced Amy to the wider ProMondo team via group chat. Kern described Damian as attentive, mature, and engaged during the meeting. Team expressed excitement about building a relationship with the Mojica family."],
+  ["6/20/2026","ProMondo Sports","Matt Bollero","CEO","","FaceTime","FaceTime introduction during/after Kern's in-person meeting with MJ Jean. Matt expressed enthusiasm about meeting in person in Las Vegas during NBA Summer League / EYBL (July 8–12). Former Director of Scouting for the Milwaukee Bucks (championship team)."],
+  ["6/20/2026","ProMondo Sports","Nic Meister","Chief of Staff","","Group Text","Introduced via group chat along with Matt Bollero after Kern's meeting with MJ Jean. Looking forward to meeting in person in Las Vegas."],
+  ["6/20/2026","Harrison Sports Management","Michael Higgins","Lawyer & Agent","","Phone Call","Initial meeting/call with Michael Higgins of HSM. Reviewed NIL agency questions framework. Discussion covered agency's evaluation process, client acquisition and development pipeline, the role of an athlete's inner circle, and what qualities they look for in a player and family."],
+  ["7/1/2026","ProMondo Sports","MJ Jean (Mardochee)","Agent","","Group Text","MJ coordinated availability for Las Vegas EYBL (July 8–12) — entire ProMondo team will be in town for NBA Summer League. Proposed dinner to introduce full team outside gym setting. Family arriving late July 9. Schedule to be shared once confirmed."],
+  ["7/2/2026","ProMondo Sports","Sean Deniton","Agent","984.335.4012","Group Text","Commented on Damian's game-winning dunk. Congratulated on Syracuse visit. Asked about Pangos exposure event on July 9 (5:30–9:30 PM) — NCAA certified, tied to Nike EYBL weekend. Family checking schedule and coordinating with Damian's coach before committing."],
+];
+
+/* ===================== BADGES ===================== */
+function contactBadge(c) {
+  if (!c) return "";
+  const map = {
+    "Phone Call": `<span class="badge badge-call">📞 Call</span>`,
+    "Text":       `<span class="badge badge-text">💬 Text</span>`,
+    "In-Person":  `<span class="badge badge-meet">🤝 In-Person</span>`,
+    "FaceTime":   `<span class="badge badge-ft">📱 FaceTime</span>`,
+    "Group Text": `<span class="badge badge-text">💬 Group Text</span>`,
+  };
+  return map[c] || `<span class="badge">${c}</span>`;
+}
+function statusBadge(s) {
+  if (s === "Offer Received") return `<span class="badge badge-offer">🏀 Offer</span>`;
+  if (s === "Active")         return `<span class="badge badge-active">Active</span>`;
+  return `<span class="badge">${s}</span>`;
+}
+function divBadge(d) {
+  if (d === "D1") return `<span class="badge badge-d1">D1</span>`;
+  if (d === "D2") return `<span class="badge badge-d2">D2</span>`;
+  return d;
+}
+
+/* ===================== SCHOOL TABLE ===================== */
+function renderSchools(rows) {
+  const tbody = document.getElementById("s-tbody");
+  const noRes = document.getElementById("s-nores");
+  if (!rows.length) { tbody.innerHTML=""; noRes.style.display="block"; return; }
+  noRes.style.display = "none";
+  tbody.innerHTML = rows.map((r,i) => `
+    <tr>
+      <td style="color:#999;font-size:.75rem">${i+1}</td>
+      <td style="white-space:nowrap">${r[0]||"—"}</td>
+      <td><strong>${r[1]}</strong></td>
+      <td>${divBadge(r[2])}</td>
+      <td>${r[3]}</td>
+      <td>${r[4]}</td>
+      <td style="color:#666;font-size:.78rem">${r[5]}</td>
+      <td class="phone">${r[6]}</td>
+      <td>${contactBadge(r[7])}</td>
+      <td>${statusBadge(r[8])}</td>
+      <td class="notes">${r[9]}</td>
+    </tr>`).join("");
+}
+function filterSchools() {
+  const q = document.getElementById("s-search").value.toLowerCase();
+  const st = document.getElementById("s-status").value;
+  const ct = document.getElementById("s-contact").value;
+  const cf = document.getElementById("s-conf").value;
+  renderSchools(schoolData.filter(r => {
+    const s = r.join(" ").toLowerCase();
+    return (!q||s.includes(q)) && (!st||r[8]===st) && (!ct||r[7]===ct) && (!cf||r[3]===cf);
+  }));
+}
+let sAsc=true, sCol=-1;
+function sortSchools(col) {
+  if(sCol===col) sAsc=!sAsc; else sAsc=true; sCol=col;
+  renderSchools([...schoolData].sort((a,b)=>sAsc?a[col].localeCompare(b[col]):b[col].localeCompare(a[col])));
+}
+renderSchools(schoolData);
+
+/* ===================== NIL TABLE ===================== */
+function renderNil(rows) {
+  const tbody = document.getElementById("n-tbody");
+  const noRes = document.getElementById("n-nores");
+  if (!rows.length) { tbody.innerHTML=""; noRes.style.display="block"; return; }
+  noRes.style.display = "none";
+  tbody.innerHTML = rows.map((r,i) => `
+    <tr>
+      <td style="color:#999;font-size:.75rem">${i+1}</td>
+      <td style="white-space:nowrap">${r[0]||"—"}</td>
+      <td><strong>${r[1]}</strong></td>
+      <td>${r[2]}</td>
+      <td style="color:#666;font-size:.78rem">${r[3]}</td>
+      <td class="phone">${r[4]}</td>
+      <td>${contactBadge(r[5])}</td>
+      <td class="summary">${r[6]}</td>
+    </tr>`).join("");
+}
+function filterNil() {
+  const q = document.getElementById("n-search").value.toLowerCase();
+  const ag = document.getElementById("n-agency").value;
+  const ty = document.getElementById("n-type").value;
+  renderNil(nilData.filter(r => {
+    const s = r.join(" ").toLowerCase();
+    return (!q||s.includes(q)) && (!ag||r[1]===ag) && (!ty||r[5]===ty);
+  }));
+}
+let nAsc=true, nCol=-1;
+function sortNil(col) {
+  if(nCol===col) nAsc=!nAsc; else nAsc=true; nCol=col;
+  renderNil([...nilData].sort((a,b)=>nAsc?a[col].localeCompare(b[col]):b[col].localeCompare(a[col])));
+}
+renderNil(nilData);
+
+/* ===================== TABS ===================== */
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
