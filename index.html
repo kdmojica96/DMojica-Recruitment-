@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Damian Mojica — Recruitment Tracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f4f6f9; color: #222; }
+
+  .header {
+    background: linear-gradient(135deg, #1a2a4a 0%, #2d4a7a 100%);
+    color: white; padding: 28px 32px; display: flex;
+    align-items: center; justify-content: space-between;
+  }
+  .header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: .5px; }
+  .header p  { font-size: .9rem; opacity: .8; margin-top: 4px; }
+  .header-right { text-align: right; font-size: .85rem; opacity: .75; }
+
+  .stats { display: flex; gap: 16px; padding: 24px 32px; flex-wrap: wrap; }
+  .card {
+    background: white; border-radius: 10px; padding: 18px 24px;
+    flex: 1; min-width: 140px; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    border-top: 4px solid #2d4a7a;
+  }
+  .card.offer  { border-top-color: #e05b2c; }
+  .card.active { border-top-color: #2e7d52; }
+  .card.text   { border-top-color: #5b7fa6; }
+  .card.call   { border-top-color: #7b5ea7; }
+  .card-num  { font-size: 2rem; font-weight: 700; color: #1a2a4a; line-height: 1; }
+  .card-label{ font-size: .78rem; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+
+  .controls {
+    padding: 0 32px 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  }
+  .controls input, .controls select {
+    padding: 8px 14px; border: 1px solid #ccc; border-radius: 6px;
+    font-size: .88rem; background: white;
+  }
+  .controls input { width: 260px; }
+  .controls label { font-size: .82rem; color: #555; margin-right: 4px; }
+
+  .table-wrap { padding: 0 32px 40px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: white;
+    border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  thead { background: #1a2a4a; color: white; }
+  thead th {
+    padding: 12px 14px; text-align: left; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .5px; white-space: nowrap;
+    cursor: pointer; user-select: none;
+  }
+  thead th:hover { background: #2d4a7a; }
+  tbody tr { border-bottom: 1px solid #eee; transition: background .15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f0f4ff; }
+  td { padding: 11px 14px; font-size: .85rem; vertical-align: top; }
+  td.notes { max-width: 320px; color: #444; font-size: .8rem; line-height: 1.45; }
+
+  .badge {
+    display: inline-block; padding: 3px 9px; border-radius: 20px;
+    font-size: .72rem; font-weight: 600; white-space: nowrap;
+  }
+  .badge-offer  { background: #fde8df; color: #c0401a; }
+  .badge-active { background: #dff3e9; color: #1e6e40; }
+  .badge-text   { background: #e3ecf7; color: #2c5282; }
+  .badge-call   { background: #ede8f5; color: #5b3d9e; }
+  .badge-d1     { background: #fff3cd; color: #7a5500; }
+  .badge-d2     { background: #e8f4e8; color: #2d5a1b; }
+
+  .phone { color: #2d4a7a; font-weight: 500; white-space: nowrap; }
+  .no-results { padding: 40px; text-align: center; color: #888; font-size: .95rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Damian Mojica — Recruitment Tracker</h1>
+    <p>Class of 2028 &nbsp;|&nbsp; SF/PF &nbsp;|&nbsp; 6'8" &nbsp;|&nbsp; Yonkers, NY</p>
+  </div>
+  <div class="header-right">
+    Last updated: July 4, 2026<br>
+    Tracking 24 schools
+  </div>
+</div>
+
+<div class="stats">
+  <div class="card">
+    <div class="card-num">28</div>
+    <div class="card-label">Total Contacts</div>
+  </div>
+  <div class="card">
+    <div class="card-num">24</div>
+    <div class="card-label">Schools</div>
+  </div>
+  <div class="card offer">
+    <div class="card-num">6</div>
+    <div class="card-label">Offers Received</div>
+  </div>
+  <div class="card active">
+    <div class="card-num">22</div>
+    <div class="card-label">Active</div>
+  </div>
+  <div class="card call">
+    <div class="card-num">17</div>
+    <div class="card-label">Phone Calls</div>
+  </div>
+  <div class="card text">
+    <div class="card-num">9</div>
+    <div class="card-label">Texts</div>
+  </div>
+</div>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Search school, coach, conference…" oninput="filterTable()">
+  <label>Status:</label>
+  <select id="filter-status" onchange="filterTable()">
+    <option value="">All</option>
+    <option value="Offer Received">Offers</option>
+    <option value="Active">Active</option>
+  </select>
+  <label>Contact:</label>
+  <select id="filter-contact" onchange="filterTable()">
+    <option value="">All</option>
+    <option value="Phone Call">Phone Call</option>
+    <option value="Text">Text</option>
+  </select>
+  <label>Conference:</label>
+  <select id="filter-conf" onchange="filterTable()">
+    <option value="">All</option>
+    <option value="ACC">ACC</option>
+    <option value="Big Ten">Big Ten</option>
+    <option value="Big 12">Big 12</option>
+    <option value="SEC">SEC</option>
+    <option value="Big East">Big East</option>
+    <option value="American Athletic">American Athletic</option>
+    <option value="Mountain West">Mountain West</option>
+    <option value="Atlantic 10">Atlantic 10</option>
+    <option value="Conference USA">Conference USA</option>
+    <option value="MAC">MAC</option>
+    <option value="MAAC">MAAC</option>
+    <option value="CAA">CAA</option>
+    <option value="Sun Belt">Sun Belt</option>
+    <option value="Patriot League">Patriot League</option>
+    <option value="Summit League">Summit League</option>
+    <option value="ASUN">ASUN</option>
+    <option value="NEC">NEC</option>
+    <option value="MEAC">MEAC</option>
+    <option value="Southern Conference">Southern Conference</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+  <table id="tracker-table">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">#</th>
+        <th onclick="sortTable(1)">Date</th>
+        <th onclick="sortTable(2)">College</th>
+        <th onclick="sortTable(3)">Div</th>
+        <th onclick="sortTable(4)">Conference</th>
+        <th onclick="sortTable(5)">Coach</th>
+        <th onclick="sortTable(6)">Position</th>
+        <th onclick="sortTable(7)">Phone</th>
+        <th onclick="sortTable(8)">Contact</th>
+        <th onclick="sortTable(9)">Status</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div id="no-results" class="no-results" style="display:none">No matching records found.</div>
+</div>
+
+<script>
+const data = [
+  ["6/15/2026","Syracuse","D1","ACC","Ben Lee","Assistant Coach","+1 (516) 417-2330","Text","Active",""],
+  ["6/15/2026","Hofstra","D1","CAA","","","","Phone Call","Active",""],
+  ["6/15/2026","Arkansas Little Rock","D1","Sun Belt","Christian Nunez","Assistant Coach","+1 (914) 705-1039","Phone Call","Offer Received",""],
+  ["6/15/2026","East Carolina","D1","American Athletic","Coach Poole","","+1 (512) 497-0815","Phone Call","Offer Received",""],
+  ["6/15/2026","Notre Dame","D1","ACC","Tre Whitted","Assistant Coach","+1 (910) 470-8610","Text","Active","Tre Whitted texted: 'Enjoyed watching you guys play yesterday. Interested in Damian Mojica, do you mind giving me his number? I want to reach out to him tomorrow.' Shared Damian's number with Notre Dame. | Follow-up phone call with Notre Dame."],
+  ["6/15/2026","Towson","D1","CAA","Chris Conway","Assistant Coach","+1 (443) 834-3413","Text","Active",""],
+  ["6/15/2026","Boston University","D1","Patriot League","Joe Jones","Head Coach","+1 (781) 690-8614","Phone Call","Active","Head Coach"],
+  ["6/16/2026","Oral Roberts","D1","Summit League","","","","Phone Call","Offer Received",""],
+  ["6/15/2026","Kennesaw State","D1","ASUN","Willie Watson","Assistant Coach","+1 (205) 499-5363","Phone Call","Offer Received",""],
+  ["6/15/2026","Stanford","D1","ACC","Matt Elkin","Assistant Coach","+1 (617) 462-0664","Text","Active","Matt Elkin asked for Dad's contact and Damian's number. Also requested Damian's updated transcript when semester ends. Shared Dad's number with Stanford."],
+  ["6/17/2026","Stanford","D1","ACC","Matt Elkin","Assistant Coach","+1 (617) 462-0664","Phone Call","Active","Matt Elkin asked for Dad's contact and Damian's number. Also requested Damian's updated transcript when semester ends. Shared Dad's number with Stanford."],
+  ["6/17/2026","FDU","D1","NEC","","","","Text","Active",""],
+  ["6/16/2026","Buffalo","D1","MAC","Raman Sposato","Assistant Coach","+1 (213) 925-7465","","Active","Raman Sposato reached out about Damian. Shared Dad's contact and Damian's contact info with him."],
+  ["6/16/2026","Chattanooga","D1","Southern Conference","Coach Kiely","Assistant Coach","+1 (518) 428-8074","Text","Active","Also spoke with Chattanooga by phone."],
+  ["6/17/2026","Boston College","D1","ACC","Mat Johnson","Assistant Coach","+1 (609) 346-9371","Phone Call","Active",""],
+  ["6/17/2026","Virginia Tech","D1","ACC","J.D. Byers","Assistant Coach","+1 (410) 259-1747","Text","Active",""],
+  ["7/2/2026","Virginia Tech","D1","ACC","J.D. Byers","Assistant Coach","+1 (410) 259-1747","Phone Call","Offer Received","Phone conversation on 7/2/2026. Scholarship offer received."],
+  ["6/17/2026","Delaware","D1","CAA","Coach Corey","Assistant Coach","+1 (202) 528-0859","","Active",""],
+  ["","Norfolk State","D1","MEAC","Leonard Fairley","","+1 (301) 395-7884","","Active",""],
+  ["3/13/2026","Rice","D1","Conference USA","Jeff Martin","Assistant Coach","","Text","Active","Jeff Martin reached out via text. Got Damian's contact from Joey Kuhl (former Iona colleague). Really likes Damian's game and wanted to introduce himself. | Phone call with Dad (3/13/2026)."],
+  ["","Iona","D1","MAAC","","","","Phone Call","Active","Reached out but not recruiting 2028 class yet. Will be in contact in the fall and would like Damian to visit (practice or game). Expect follow-up after July live periods. Shared Dad's and Damian's contact info."],
+  ["","New Mexico","D1","Mountain West","","","","Phone Call","Active","Phone tag — haven't connected yet. Will share contact info once connected."],
+  ["","Michigan State","D1","Big Ten","Doug Wojcik","","","Phone Call","Active","Doug Wojcik reached out. Interested in Damian, wants to keep evaluating through rest of summer. Shared Dad's, Damian's, and Amy's contact info."],
+  ["","Chattanooga","D1","Southern Conference","Coach Kiely","Assistant Coach","+1 (518) 428-8074","Phone Call","Active","Follow-up phone call with Chattanooga — spoke directly with Coach Kiely."],
+  ["","Notre Dame","D1","ACC","Tre Whitted","Assistant Coach","+1 (910) 470-8610","Phone Call","Active","Phone call with Notre Dame — follow-up to initial text from Tre Whitted."],
+  ["7/1/2026","West Virginia","D1","Big 12","Phil Forte","Coach","+1 (972) 971-3558","Phone Call","Offer Received","Scholarship offered 7/1/2026. Phil Forte followed up on 7/2/2026."],
+  ["7/1/2026","Minnesota","D1","Big Ten","Lexus Williams","Coach","+1 (612) 200-7495","Phone Call","Active","Called on 7/1/2026."],
+];
+
+function contactBadge(c) {
+  if (!c) return "";
+  if (c === "Phone Call") return `<span class="badge badge-call">📞 Call</span>`;
+  if (c === "Text")       return `<span class="badge badge-text">💬 Text</span>`;
+  return `<span class="badge">${c}</span>`;
+}
+function statusBadge(s) {
+  if (s === "Offer Received") return `<span class="badge badge-offer">🏀 Offer</span>`;
+  if (s === "Active")         return `<span class="badge badge-active">Active</span>`;
+  return `<span class="badge">${s}</span>`;
+}
+function divBadge(d) {
+  if (d === "D1") return `<span class="badge badge-d1">D1</span>`;
+  if (d === "D2") return `<span class="badge badge-d2">D2</span>`;
+  return d;
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById("tbody");
+  const noRes = document.getElementById("no-results");
+  if (!rows.length) { tbody.innerHTML=""; noRes.style.display="block"; return; }
+  noRes.style.display = "none";
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td style="color:#999;font-size:.75rem">${i+1}</td>
+      <td style="white-space:nowrap">${r[0]||"—"}</td>
+      <td><strong>${r[1]}</strong></td>
+      <td>${divBadge(r[2])}</td>
+      <td>${r[3]}</td>
+      <td>${r[4]}</td>
+      <td style="color:#666;font-size:.78rem">${r[5]}</td>
+      <td class="phone">${r[6]}</td>
+      <td>${contactBadge(r[7])}</td>
+      <td>${statusBadge(r[8])}</td>
+      <td class="notes">${r[9]}</td>
+    </tr>`).join("");
+}
+
+function filterTable() {
+  const q    = document.getElementById("search").value.toLowerCase();
+  const stat = document.getElementById("filter-status").value;
+  const cont = document.getElementById("filter-contact").value;
+  const conf = document.getElementById("filter-conf").value;
+  const filtered = data.filter(r => {
+    const str = r.join(" ").toLowerCase();
+    return (!q    || str.includes(q))
+        && (!stat || r[8] === stat)
+        && (!cont || r[7] === cont)
+        && (!conf || r[3] === conf);
+  });
+  renderTable(filtered);
+}
+
+let sortAsc = true, lastCol = -1;
+function sortTable(col) {
+  if (lastCol === col) sortAsc = !sortAsc; else sortAsc = true;
+  lastCol = col;
+  const sorted = [...data].sort((a,b) => {
+    const av = a[col]||"", bv = b[col]||"";
+    return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+  renderTable(sorted);
+}
+
+renderTable(data);
+</script>
+</body>
+</html>
