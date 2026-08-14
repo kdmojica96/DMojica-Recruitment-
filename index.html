@@ -152,11 +152,11 @@
 <div id="tab-schools" class="tab-panel active">
 
 <div class="stats">
-  <div class="card"><div class="card-num">33</div><div class="card-label">Total Contacts</div></div>
-  <div class="card"><div class="card-num">26</div><div class="card-label">Schools</div></div>
-  <div class="card offer"><div class="card-num">8</div><div class="card-label">Offers Received</div></div>
+  <div class="card"><div class="card-num">36</div><div class="card-label">Total Contacts</div></div>
+  <div class="card"><div class="card-num">27</div><div class="card-label">Schools</div></div>
+  <div class="card offer"><div class="card-num">9</div><div class="card-label">Offers Received</div></div>
   <div class="card active"><div class="card-num">22</div><div class="card-label">Active</div></div>
-  <div class="card call"><div class="card-num">17</div><div class="card-label">Phone Calls</div></div>
+  <div class="card call"><div class="card-num">19</div><div class="card-label">Phone Calls</div></div>
   <div class="card text"><div class="card-num">9</div><div class="card-label">Texts</div></div>
 </div>
 
@@ -217,7 +217,7 @@
   </table>
   <div id="s-nores" class="no-results" style="display:none">No matching records found.</div>
 </div>
-</div>
+</div><!-- end schools tab -->
 
 <!-- ======================== NIL TAB ======================== -->
 <div id="tab-nil" class="tab-panel">
@@ -298,7 +298,7 @@
   <div id="n-nores" class="no-results" style="display:none">No matching records found.</div>
 </div>
 
-</div>
+</div><!-- end nil tab -->
 
 <script>
 /* ===================== SCHOOL DATA ===================== */
@@ -334,11 +334,15 @@ const schoolData = [
   ["7/5/2026","Wake Forest","D1","ACC","Nick Friedman","Assistant Coach / OC","+1 (617) 803-5155","Phone Call","Offer Received","Scholarship offer received 7/5/2026."],
   ["7/14/2026","Syracuse","D1","ACC","Gerry McNamara","Head Coach","+1 (315) 347-0399","Phone Call","Offer Received","Phone conversation on 7/14/2026. Scholarship offer received from Head Coach Gerry McNamara."],
   ["7/17/2026","Purdue","D1","Big Ten","","","","","Active","Intel via Phillip Kirsch (Pro Insight Scout, (317) 903-1378) at Peach Jam: Purdue really likes Damian. Kirsch interviewed Damian at NEPSAC. Family shared recruiting point of contact with Kirsch — Purdue staff or Kirsch expected to follow up."],
-  ["7/17/2026","Purdue","D1","Big Ten","PJ Thompson","Associate Head Coach","(317) 691-8979","Text","Active","Text received 7/17/26: 'I really enjoyed watching Damian play today. He was awesome. I'd love to connect with you this weekend over the phone to introduce myself. Let me know what works best with your availability.' Phone call scheduled for 7/17/26."],
+  ["7/17/2026","Purdue","D1","Big Ten","PJ Thompson","Associate Head Coach","(317) 691-8979","Text","Offer Received","Text received 7/17/26: 'I really enjoyed watching Damian play today. He was awesome. I'd love to connect with you this weekend over the phone to introduce myself. Let me know what works best with your availability.' Phone call scheduled for 7/17/26."],
+  ["8/7/2026","Purdue","D1","Big Ten","PJ Thompson","Associate Head Coach","(317) 691-8979","Phone Call","Offer Received","Scholarship offer received from Purdue University on 8/7/2026."],
+  ["8/9/2026","Purdue","D1","Big Ten","Matt Painter","Head Coach","","Phone Call","Offer Received","Kern and Amy spoke with Head Coach Matt Painter on Sunday evening 8/9/2026. Purdue wants Damian to visit campus and attend a game in Fall 2026."],
+  ["7/17/2026","Oklahoma State","D1","Big 12","Dana Valentine","Coach","+1 (617) 861-1516","Text","Active","Text to Kern 7/17/26 after calling Damian: 'Hey Kern this is Dana Valentine from Oklahoma State University. Wrapped up a call with Damian early today and wanted to reach out to you as well so we can get connected. Excited to build a relationship with you and your family! Damian was one of my favorite players to watch this summer. He has a bright future.'"],
 ];
 
 /* ===================== NIL DATA ===================== */
 const nilData = [
+  // [date, agency, person, role, phone, type, summary]
   ["4/24/2026","ProMondo Sports","Sean Deniton","Agent","984.335.4012","In-Person","Sean watched Damian play at EYBL in Atlanta, GA (4/24–4/26). Was impressed by his IQ, soft touch around the rim, and rebounding. Made initial connection with the family."],
   ["5/1/2026","ProMondo Sports","Sean Deniton","Agent","984.335.4012","Phone Call","First formal conversation about representation. Key points: ProMondo has been operating 5–6 years with former NBA GMs (Matt Bollero was Director of Scouting in Milwaukee during championship). No cost for high schoolers — fees kick in at 10% only when NIL deals are negotiated in college (based on FIFA-style rules, below industry standard of 15–20%). Focus on finding best school fit first, then NIL. Has relationships with college coaches to provide honest recruiting intel. Offers player development via NBA skills trainers (including one based at NBAPA in NY). Runs 'College Week' (1st week of June/May) — fly NIL clients to Minnesota for NBA-level workouts, nutrition, education. Currently represents 15–20 HS athletes. Damian's development notes: improve communication and activity on defense."],
   ["6/20/2026","ProMondo Sports","MJ Jean (Mardochee)","Agent","","In-Person","In-person meeting between Kern and MJ Jean. MJ also introduced Amy to the wider ProMondo team via group chat. Kern described Damian as attentive, mature, and engaged during the meeting. Team expressed excitement about building a relationship with the Mojica family."],
